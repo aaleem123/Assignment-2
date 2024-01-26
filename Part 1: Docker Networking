@@ -1,0 +1,228 @@
+● Create a new Docker network named "my_network" using the bridge driver. (2 marks) 
+            root@ip-172-31-37-165:~# docker network create my_network
+            79695a9db6dd45443816f32b2fe54eb32e6882c05f70ad0be31781fe0c9f7dfc
+            root@ip-172-31-37-165:~# docker network ls
+            NETWORK ID     NAME         DRIVER    SCOPE
+            9e9dcbb4af7b   bridge       bridge    local
+            48330c345b7a   host         host      local
+            79695a9db6dd   my_network   bridge    local
+            b8e034d6cfd5   none         null      local
+
+● Create a new Docker container using the "nginx" image and connect it to the "my_network" network. Name the container "nginx_container". (4 marks) 
+             REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+            nginx         latest    a8758716bb6a   3 months ago   187MB
+            hello-world   latest    d2c94e258dcb   8 months ago   13.3kB
+            root@ip-172-31-37-165:~# docker network ls
+            NETWORK ID     NAME         DRIVER    SCOPE
+            9e9dcbb4af7b   bridge       bridge    local
+            48330c345b7a   host         host      local
+            79695a9db6dd   my_network   bridge    local
+            b8e034d6cfd5   none         null      local
+            root@ip-172-31-37-165:~#  docker run -itd --name nginx_container --network my_network nginx /bin/bash
+            cebf292ed67895fea8c6513f400ef61af606cb726164466f76fa0be1ed1d5214
+            root@ip-172-31-37-165:~# docker ps
+            CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+            cebf292ed678   nginx     "/docker-entrypoint.…"   10 seconds ago   Up 10 seconds   80/tcp    nginx_container
+
+
+
+● Verify that the "nginx" default page is accessible on your host machine at http://localhost:8080. (2 marks) 
+                http://54.89.17.83:8080/ yes accessible
+
+● Create a new Docker container using the "httpd" image and connect it to the "my_network" network. Name the container "httpd_container". (4 marks) 
+                  root@ip-172-31-37-165:~# docker run -d --name httpd_container -p 8081:80 httpd
+                  Unable to find image 'httpd:latest' locally
+                  latest: Pulling from library/httpd
+                  2f44b7a888fa: Already exists
+                  376771e8483c: Pull complete
+                  4f4fb700ef54: Pull complete
+                  6a6627aecff0: Pull complete
+                  152f4888b550: Pull complete
+                  fd0579f22872: Pull complete
+                  Digest: sha256:ba846154ade27292d216cce2d21f1c7e589f3b66a4a643bff0cdd348efd17aa3
+                  Status: Downloaded newer image for httpd:latest
+                  796b0626f801890f035e960867f2789ebe4610fe95474b1a06f2a7b1f2c6e96e
+                  root@ip-172-31-37-165:~# docker ps
+                  CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                                   NAMES
+                  796b0626f801   httpd     "httpd-foreground"       8 seconds ago   Up 6 seconds   0.0.0.0:8081->80/tcp, :::8081->80/tcp   httpd_container
+                  cebf292ed678   nginx     "/docker-entrypoint.…"   2 hours ago     Up 2 hours     80/tcp                                  nginx_container
+                  root@ip-172-31-37-165:~# docker inspect httpd_container
+                   },
+                                  "my_network": {
+                                      "IPAMConfig": {},
+                                      "Links": null,
+                                      "Aliases": [
+                                          "796b0626f801"
+                                      ],
+                                      "MacAddress": "02:42:ac:12:00:03",
+                                      "NetworkID": "79695a9db6dd45443816f32b2fe54eb32e6882c05f70ad0be31781fe0c9f7dfc",
+                                      "EndpointID": "9df6a91e0e36740dbd333d4653f6791ecf1ebad7c35d826308fd368a44c9aaa4",
+                                      "Gateway": "172.18.0.1",
+                                      "IPAddress": "172.18.0.3",
+                                      "IPPrefixLen": 16,
+                                      "IPv6Gateway": "",
+                                      "GlobalIPv6Address": "",
+                                      "GlobalIPv6PrefixLen": 0,
+                                      "DriverOpts": {},
+                                      "DNSNames": [
+                                          "httpd_container",
+                                          "796b0626f801"
+
+
+● Verify that the "httpd" default page is accessible on your host machine at http://localhost:8081. (2 marks) 
+          root@ip-172-31-37-165:~# curl 172.18.0.3
+          <html><body><h1>It works!</h1></body></html>
+
+
+● Use the "docker network inspect" command to display information about the "my_network" network. Document your findings in the README.md file. (4 marks)
+          root@ip-172-31-37-165:~# docker network inspect my_network
+[
+    {
+        "Name": "my_network",
+        "Id": "79695a9db6dd45443816f32b2fe54eb32e6882c05f70ad0be31781fe0c9f7dfc",
+        "Created": "2024-01-26T11:13:14.108984284Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "796b0626f801890f035e960867f2789ebe4610fe95474b1a06f2a7b1f2c6e96e": {
+                "Name": "httpd_container",
+                "EndpointID": "9df6a91e0e36740dbd333d4653f6791ecf1ebad7c35d826308fd368a44c9aaa4",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "cebf292ed67895fea8c6513f400ef61af606cb726164466f76fa0be1ed1d5214": {
+                "Name": "nginx_container",
+                "EndpointID": "02877d4483dae5b9175c695358eb41896610a2b371d6a9cb7f599769408fc337",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+
+● Create a new Docker container using the "nginx" image and connect it to the "my_network" network. Name the container "nginx_container_2". (4 marks) 
+              
+              root@ip-172-31-37-165:~# docker run -dit --name nginx_container_2 -p 8082:80 nginx
+              c0bc04a44406a76bb7acdaab52864b5b9ed6aeaee016706f9afd672e75c465ff
+              root@ip-172-31-37-165:~# docker ps
+              CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                   NAMES
+              c0bc04a44406   nginx     "/docker-entrypoint.…"   5 seconds ago    Up 3 seconds    0.0.0.0:8082->80/tcp, :::8082->80/tcp   nginx_container_2
+              796b0626f801   httpd     "httpd-foreground"       38 minutes ago   Up 38 minutes   0.0.0.0:8081->80/tcp, :::8081->80/tcp   httpd_container
+              cebf292ed678   nginx     "/docker-entrypoint.…"   3 hours ago      Up 3 hours      80/tcp                                  nginx_container
+              root@ip-172-31-37-165:~# docker network connect my_network nginx_container_2
+
+              root@ip-172-31-37-165:~# docker inspect my_network |grep container
+                              "Name": "httpd_container",
+                              "Name": "nginx_container_2",
+                              "Name": "nginx_container",
+
+
+● Verify that the "nginx" default page is accessible on your host machine at http://localhost:8082. (2 marks) 
+             root@ip-172-31-37-165:~# docker inspect nginx_container_2 | grep IP
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.3",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+                    "IPAMConfig": null,
+                    "IPAddress": "172.17.0.3",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "IPAMConfig": {},
+                    "IPAddress": "172.18.0.4",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+
+                root@ip-172-31-37-165:~# curl 172.17.0.3
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <title>Welcome to nginx!</title>
+                <style>
+                html { color-scheme: light dark; }
+                body { width: 35em; margin: 0 auto;
+                font-family: Tahoma, Verdana, Arial, sans-serif; }
+                </style>
+                </head>
+                <body>
+                <h1>Welcome to nginx!</h1>
+                <p>If you see this page, the nginx web server is successfully installed and
+                working. Further configuration is required.</p>
+                
+                <p>For online documentation and support please refer to
+                <a href="http://nginx.org/">nginx.org</a>.<br/>
+                Commercial support is available at
+                <a href="http://nginx.com/">nginx.com</a>.</p>
+                
+                <p><em>Thank you for using nginx.</em></p>
+                </body>
+                </html>
+                
+
+● Use the "docker container ls" command to display information about all running containers. Document your findings in the README.md file. (4 marks)
+              root@ip-172-31-37-165:~# docker container ls
+              CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                   NAMES
+              c0bc04a44406   nginx     "/docker-entrypoint.…"   11 minutes ago   Up 11 minutes   0.0.0.0:8082->80/tcp, :::8082->80/tcp   nginx_container_2
+              796b0626f801   httpd     "httpd-foreground"       50 minutes ago   Up 50 minutes   0.0.0.0:8081->80/tcp, :::8081->80/tcp   httpd_container
+              cebf292ed678   nginx     "/docker-entrypoint.…"   3 hours ago      Up 3 hours      80/tcp                                  nginx_container
+
+
+
+● Stop and remove all containers. (2 marks) ● Stop and remove the "nginx_container" container. (2 marks)
+
+            root@ip-172-31-37-165:~# docker stop nginx_container_2 httpd_container nginx_container
+            nginx_container_2
+            httpd_container
+            nginx_container
+            root@ip-172-31-37-165:~# docker container ls
+            CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+           
+
+● Cleanup: Remove the "my_network" network. (2 marks)
+            root@ip-172-31-37-165:~# docker network ls
+            NETWORK ID     NAME         DRIVER    SCOPE
+            9e9dcbb4af7b   bridge       bridge    local
+            48330c345b7a   host         host      local
+            79695a9db6dd   my_network   bridge    local
+            b8e034d6cfd5   none         null      local
+            root@ip-172-31-37-165:~# docker network rm my_network
+            my_network
+            root@ip-172-31-37-165:~# docker network ls
+            NETWORK ID     NAME      DRIVER    SCOPE
+            9e9dcbb4af7b   bridge    bridge    local
+            48330c345b7a   host      host      local
+            b8e034d6cfd5   none      null      local
+
+● Create a README.md file and document your findings for each command. For each command, provide a brief description of what it does, followed by the output and logs generated by the command. Ensure that the README.md file is well-organized, easy to read, and contains all necessary information. (18 marks)
+● Push the codebase for the sample application to your GitHub repository (create a new one for this part) 
